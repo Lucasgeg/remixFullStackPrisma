@@ -1,6 +1,6 @@
-# A Practical Introduction to Prisma
+# Advanced Prisma with MongoDB
 
-This repository contains the starter project for the **A Practical Introduction to Prisma with MongoDB** workshop by [Nikolas Burk](https://twitter.com/nikolasburk).
+This repository contains the starter project for the **Advanced Prisma with MongoDB** workshop by [Sabin Adams](https://twitter.com/sabintehdev).
 
 ## Setup
 
