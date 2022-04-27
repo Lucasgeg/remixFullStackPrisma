@@ -1,7 +1,6 @@
-import { Profile } from '@prisma/client';
 
 interface props {
-    profile: Profile,
+    profile: any,
     className?: string,
     onClick?: (...args: any) => any
 }

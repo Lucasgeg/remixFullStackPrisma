@@ -1,57 +1,57 @@
 import bcrypt from "bcryptjs";
 import type { RegisterForm } from "./types.server";
-import { prisma } from "./prisma.server";
-import type { Profile } from "@prisma/client";
+import cuid from "cuid";
 
 export const createUser = async (user: RegisterForm) => {
   const passwordHash = await bcrypt.hash(user.password, 10);
-  const newUser = await prisma.user.create({
-    data: {
-      email: user.email,
-      password: passwordHash,
-      profile: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-    },
-  });
-  return { id: newUser.id, email: user.email };
+
+  // create user
+
+  return {
+    id: cuid(), // new user's id
+    email: "demo@prisma.io", // new user's email
+  };
 };
 
 export const getOtherUsers = async (userId: string) => {
-  return await prisma.user.findMany({
-    where: {
-      id: { not: userId },
-    },
-    orderBy: {
+  // return all users where id != userId.
+  // Sort the results in ascending order by firstName
+  return [
+    {
+      id: cuid(),
+      email: "demo2@gmail.com",
       profile: {
-        firstName: "asc",
+        firstName: "Another",
+        lastName: "User",
       },
     },
-  });
+    {
+      id: cuid(),
+      email: "demo3@gmail.com",
+      profile: {
+        firstName: "Power",
+        lastName: "User",
+      },
+    },
+  ];
 };
 
 export const getUserById = async (userId: string) => {
-  return await prisma.user.findUnique({
-    where: {
-      id: userId,
+  // Grab a user by ID
+  return {
+    id: cuid(),
+    email: "demo2@gmail.com",
+    profile: {
+      firstName: "Another",
+      lastName: "User",
     },
-  });
+  };
 };
 
-export const updateUser = async (userId: string, profile: Partial<Profile>) => {
-  await prisma.user.update({
-    where: {
-      id: userId,
-    },
-    data: {
-      profile: {
-        update: profile,
-      },
-    },
-  });
+export const updateUser = async (userId: string, profile: any) => {
+  // Update a user's profile information
 };
 
 export const deleteUser = async (id: string) => {
-  await prisma.user.delete({ where: { id } });
+  // delete a user by id
 };

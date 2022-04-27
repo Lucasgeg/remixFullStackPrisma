@@ -3,13 +3,8 @@ import { SelectBox } from "./select-box"
 import { sortOptions } from "~/utils/constants"
 
 import { UserCircle } from "./user-circle"
-import type { Profile } from "@prisma/client"
 
-interface props {
-    profile: Profile
-}
-
-export function SearchBar({ profile }: props) {
+export function SearchBar({ profile }: any) {
     const navigate = useNavigate()
     let [searchParams] = useSearchParams();
 

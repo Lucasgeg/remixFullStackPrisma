@@ -1,74 +1,57 @@
-import { prisma } from "./prisma.server";
-import { KudoStyle, Prisma } from "@prisma/client";
+import cuid from "cuid";
 
 export const createKudo = async (
   message: string,
   userId: string,
   recipientId: string,
-  style: KudoStyle
+  style: any
 ) => {
-  await prisma.kudo.create({
-    data: {
-      message,
-      author: {
-        connect: {
-          id: userId,
-        },
-      },
-      recipient: {
-        connect: {
-          id: recipientId,
-        },
-      },
-      style,
-    },
-  });
+  // create a kudo, connect author and recipient relations
 };
 
 export const getFilteredKudos = async (
   userId: string,
-  sortFilter: Prisma.KudoOrderByWithRelationInput,
-  whereFilter: Prisma.KudoWhereInput
+  sortFilter: any,
+  whereFilter: any
 ) => {
-  return await prisma.kudo.findMany({
-    select: {
-      id: true,
-      style: true,
-      message: true,
+  // get all kudos where:
+  // - the recipient matches the user id
+  // - add ...whereFilter to the filter criteria
+  // - order the results by the orderBy parameter
+
+  return [
+    {
+      id: cuid(),
+      style: {
+        backgroundColor: "BLUE",
+        textColor: "WHITE",
+        emoji: "PARTY",
+      },
+      message: "This is static data.",
       author: {
-        select: {
-          profile: true,
+        profile: {
+          firstName: "Feed",
+          lastName: "User",
         },
       },
     },
-    orderBy: {
-      ...sortFilter,
-    },
-    where: {
-      recipientId: userId,
-      ...whereFilter,
-    },
-  });
+  ];
 };
 
 export const getRecentKudos = async () => {
-  return await prisma.kudo.findMany({
-    take: 3,
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
+  // get the most recent three kudos. Include the recipients data and the emoji
+  return [
+    {
       style: {
-        select: {
-          emoji: true,
-        },
+        emoji: "THUMBSUP",
       },
       recipient: {
-        select: {
-          id: true,
-          profile: true,
+        id: cuid(),
+        profile: {
+          firstName: "Major",
+          lastName: "User",
         },
       },
     },
-  });
+  ];
 };

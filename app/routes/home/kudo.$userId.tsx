@@ -11,7 +11,6 @@ import { Kudo } from "~/components/kudo";
 
 import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node"
 import { createKudo } from "~/utils/kudos.server";
-import { Color, Emoji, KudoStyle } from '@prisma/client'
 import { requireUserId } from "~/utils/auth.server";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -59,9 +58,9 @@ export const action: ActionFunction = async ({ request }) => {
         userId,
         recipientId,
         {
-            backgroundColor: backgroundColor as Color,
-            textColor: textColor as Color,
-            emoji: emoji as Emoji
+            backgroundColor: backgroundColor,
+            textColor: textColor,
+            emoji: emoji
         }
     )
 
@@ -77,7 +76,7 @@ export default function KudoModal() {
             backgroundColor: 'RED',
             textColor: 'WHITE',
             emoji: 'THUMBSUP',
-        } as KudoStyle
+        }
     })
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: string) => {

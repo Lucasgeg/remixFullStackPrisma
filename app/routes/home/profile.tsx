@@ -11,7 +11,6 @@ import { validateName } from "~/utils/validators.server";
 import type { ActionFunction } from "@remix-run/node"
 import { redirect, json } from "@remix-run/node"
 import { getUser, requireUserId, logout } from "~/utils/auth.server";
-import type { Department } from "@prisma/client";
 import { updateUser, deleteUser } from "~/utils/user.server";
 
 
@@ -46,7 +45,7 @@ export const action: ActionFunction = async ({ request }) => {
             await updateUser(userId, {
                 firstName,
                 lastName,
-                department: department as Department
+                department: department
             })
             return redirect('/home')
         case 'delete':

@@ -1,28 +1,12 @@
 import { redirect, json, createCookieSessionStorage } from "@remix-run/node";
 import { RegisterForm, LoginForm } from "./types.server";
-import { prisma } from "./prisma.server";
 import { createUser } from "./user.server";
 import bcrypt from "bcryptjs";
-
-const sessionSecret = process.env.SESSION_SECRET;
-if (!sessionSecret) {
-  throw new Error("SESSION_SECRET must be set");
-}
-
-const storage = createCookieSessionStorage({
-  cookie: {
-    name: "kudos-session",
-    secure: process.env.NODE_ENV === "production",
-    secrets: [sessionSecret],
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-    httpOnly: true,
-  },
-});
+import cuid from "cuid";
 
 export async function register(user: RegisterForm) {
-  const exists = await prisma.user.count({ where: { email: user.email } });
+  // Determines whether or not a user exists with the provided email
+  const exists = false; // UDPATE ME
   if (exists) {
     return json(
       { error: `User already exists with that email` },
@@ -43,16 +27,42 @@ export async function register(user: RegisterForm) {
   return createUserSession(newUser.id, "/");
 }
 
-// Validate the user on email & password
 export async function login({ email, password }: LoginForm) {
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
+  // Find a single unique user by email address
+  // UPDATE ME
+  const user = {
+    password: await bcrypt.hash(password, 10),
+    id: cuid(),
+  };
 
   if (!user || !(await bcrypt.compare(password, user.password)))
     return json({ error: `Incorrect login` }, { status: 400 });
 
   return createUserSession(user.id, "/");
+}
+
+export async function getUser(request: Request) {
+  const userId = await getUserId(request);
+  if (typeof userId !== "string") {
+    return null;
+  }
+
+  try {
+    // Select the ID, email, and profile where user's id equals userId
+    // UDPATE ME
+    const user = {
+      id: cuid(),
+      email: "demo@prisma.io",
+      profile: {
+        firstName: "Prisma",
+        lastName: "User",
+      },
+    };
+
+    return user;
+  } catch {
+    throw logout(request);
+  }
 }
 
 export async function createUserSession(userId: string, redirectTo: string) {
@@ -89,23 +99,6 @@ async function getUserId(request: Request) {
   return userId;
 }
 
-export async function getUser(request: Request) {
-  const userId = await getUserId(request);
-  if (typeof userId !== "string") {
-    return null;
-  }
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, email: true, profile: true },
-    });
-    return user;
-  } catch {
-    throw logout(request);
-  }
-}
-
 export async function logout(request: Request) {
   const session = await getUserSession(request);
   return redirect("/login", {
@@ -114,3 +107,20 @@ export async function logout(request: Request) {
     },
   });
 }
+
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret) {
+  throw new Error("SESSION_SECRET must be set");
+}
+
+const storage = createCookieSessionStorage({
+  cookie: {
+    name: "kudos-session",
+    secure: process.env.NODE_ENV === "production",
+    secrets: [sessionSecret],
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+    httpOnly: true,
+  },
+});
