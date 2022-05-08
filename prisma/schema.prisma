@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  email         String   @unique
+  password      String
+  profile       Profile
+  authoredKudos Kudo[]   @relation("AuthoredKudos")
+  kudos         Kudo[]   @relation("RecievedKudos")
+}
+
+model Kudo {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  message     String
+  createdAt   DateTime @default(now())
+  style       style
+  author      User     @relation(references: [id], fields: [authorId], "AuthoredKudos")
+  authorId    String   @db.ObjectId
+  recipient   User     @relation(references: [id], fields: [recipientId], "RecievedKudos")
+  recipientId String   @db.ObjectId
+
+}
+
+type style {
+  backgroundColor Color @default(BLUE)
+  textColor       Color @default(WHITE)
+  Emoji           Emoji @default(HANDSUP)
+}
+
+type Profile {
+  firstName String
+  lastName  String
+}
+
+enum Color {
+  RED
+  GREEN
+  BLUE
+  WHITE
+}
+
+enum Emoji {
+  THUMBSUP
+  PARTY
+  HANDSUP
+}

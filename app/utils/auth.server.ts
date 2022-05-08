@@ -3,10 +3,13 @@ import { RegisterForm, LoginForm } from "./types.server";
 import { createUser } from "./user.server";
 import bcrypt from "bcryptjs";
 import cuid from "cuid";
+import { prisma } from "./prisma.server";
 
 export async function register(user: RegisterForm) {
   // Determines whether or not a user exists with the provided email
-  const exists = false; // UDPATE ME
+  const exists = await prisma.user.count({
+    where:{email: user.email}
+  })
   if (exists) {
     return json(
       { error: `User already exists with that email` },
@@ -30,10 +33,10 @@ export async function register(user: RegisterForm) {
 export async function login({ email, password }: LoginForm) {
   // Find a single unique user by email address
   // UPDATE ME
-  const user = {
-    password: await bcrypt.hash(password, 10),
-    id: cuid(),
-  };
+  const user = await prisma.user.findUnique({
+    select:{id: true, password:true},
+    where:{ email }
+  })
 
   if (!user || !(await bcrypt.compare(password, user.password)))
     return json({ error: `Incorrect login` }, { status: 400 });
