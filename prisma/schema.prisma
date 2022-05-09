@@ -26,7 +26,7 @@ model Kudo {
   message     String
   createdAt   DateTime @default(now())
   style       style
-  author      User     @relation(references: [id], fields: [authorId], "AuthoredKudos")
+  author      User     @relation(references: [id], fields: [authorId], onDelete: Cascade, "AuthoredKudos")
   authorId    String   @db.ObjectId
   recipient   User     @relation(references: [id], fields: [recipientId], "RecievedKudos")
   recipientId String   @db.ObjectId
@@ -36,7 +36,7 @@ model Kudo {
 type style {
   backgroundColor Color @default(BLUE)
   textColor       Color @default(WHITE)
-  Emoji           Emoji @default(HANDSUP)
+  emoji           Emoji @default(HANDSUP)
 }
 
 type Profile {

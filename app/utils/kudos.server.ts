@@ -1,57 +1,64 @@
+import { Prisma, style } from "@prisma/client";
 import cuid from "cuid";
+import { prisma } from "./prisma.server";
 
 export const createKudo = async (
   message: string,
   userId: string,
   recipientId: string,
-  style: any
+  style: style
 ) => {
-  // create a kudo, connect author and recipient relations
+  await prisma.kudo.create({
+    data: {
+      message,
+      author: {
+        connect: {
+          id: userId,
+        },
+      },
+      recipient: {
+        connect: {
+          id: recipientId,
+        },
+      },
+      style,
+    },
+  });
 };
 
 export const getFilteredKudos = async (
   userId: string,
-  sortFilter: any,
-  whereFilter: any
+  sortFilter: Prisma.KudoOrderByWithRelationInput,
+  whereFilter: Prisma.KudoWhereInput
 ) => {
-  // get all kudos where:
-  // - the recipient matches the user id
-  // - add ...whereFilter to the filter criteria
-  // - order the results by the orderBy parameter
-
-  return [
-    {
-      id: cuid(),
-      style: {
-        backgroundColor: "BLUE",
-        textColor: "WHITE",
-        emoji: "PARTY",
-      },
-      message: "This is static data.",
-      author: {
-        profile: {
-          firstName: "Feed",
-          lastName: "User",
-        },
-      },
+  return await prisma.kudo.findMany({
+    orderBy: sortFilter,
+    select: {
+      id: true,
+      style: true,
+      message: true,
+      author: { select: { profile: true } },
     },
-  ];
+    where: {
+      recipientId: userId,
+      ...whereFilter,
+    },
+  });
 };
 
 export const getRecentKudos = async () => {
   // get the most recent three kudos. Include the recipients data and the emoji
-  return [
-    {
-      style: {
-        emoji: "THUMBSUP",
-      },
+  return await prisma.kudo.findMany({
+    orderBy: { createdAt: "desc" },
+    select: {
+      style: { select: { emoji: true } },
       recipient: {
-        id: cuid(),
-        profile: {
-          firstName: "Major",
-          lastName: "User",
+        select: {
+          id: true,
+          profile: true,
         },
       },
     },
-  ];
+    take: 3,
+  });
 };
